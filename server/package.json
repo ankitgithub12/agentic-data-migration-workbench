@@ -1,0 +1,34 @@
+{
+  "name": "migration-workbench-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Backend API and deterministic migration engine for Migration Workbench",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "nodemon --watch src src/app.js",
+    "start": "node src/app.js",
+    "build": "echo \"Server build ready\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "seed": "node src/seed.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "helmet": "^7.1.0",
+    "mongodb-memory-server": "^9.2.1",
+    "mongoose": "^8.4.1",
+    "pino": "^9.2.0",
+    "pino-http": "^10.1.0",
+    "pino-pretty": "^11.2.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.3",
+    "supertest": "^7.0.0",
+    "vitest": "^1.6.0"
+  }
+}
