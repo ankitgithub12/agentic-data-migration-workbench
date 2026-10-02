@@ -2,10 +2,10 @@ import { LLMProvider } from './LLMProvider.js';
 import { logger } from '../../config/logger.js';
 
 export class GeminiProvider extends LLMProvider {
-  constructor({ apiKey, model = 'gemini-1.5-flash', baseUrl }) {
+  constructor({ apiKey, model = 'gemini-3.8-flash', baseUrl }) {
     super();
     this.apiKey = apiKey;
-    this.model = model;
+    this.model = model || 'gemini-3.8-flash';
     this.baseUrl = baseUrl || 'https://generativelanguage.googleapis.com/v1beta';
   }
 
