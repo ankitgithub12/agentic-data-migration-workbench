@@ -36,3 +36,16 @@ export const getProjectHistory = async (req, res, next) => {
     next(err);
   }
 };
+
+export const injectChaosDataset = async (req, res, next) => {
+  try {
+    const project = await projectService.injectChaosDataset(req.params.id);
+    res.json({
+      success: true,
+      message: 'Synthetic edge-case records injected successfully into project scope.',
+      data: project,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

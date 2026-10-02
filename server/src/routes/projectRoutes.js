@@ -4,6 +4,7 @@ import {
   getAllProjects,
   getProjectById,
   getProjectHistory,
+  injectChaosDataset,
 } from '../controllers/projectController.js';
 import { generateAIPlan, getPlansByProject } from '../controllers/planController.js';
 import { validateBody } from '../middleware/validateRequest.js';
@@ -20,6 +21,9 @@ router.route('/:id')
 
 router.route('/:id/history')
   .get(getProjectHistory);
+
+router.route('/:id/chaos-dataset')
+  .post(injectChaosDataset);
 
 // AI analysis and plan generation for a project
 router.route('/:id/ai/analyze')

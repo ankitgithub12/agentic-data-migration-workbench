@@ -127,6 +127,74 @@ export const Dashboard = () => {
         </div>
       </section>
 
+      {/* Assessment Guided Tour Banner */}
+      <section className="bg-gradient-to-r from-sky-50 via-indigo-50/40 to-emerald-50/40 rounded-xl border border-sky-200 p-5 shadow-subtle space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-brand-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">
+                End-to-End Architectural Governance Lifecycle
+              </h3>
+              <p className="text-xs text-slate-600">
+                Explore the 6 deterministic gates that guarantee zero-data-loss and strictly unsupervised-free AI execution.
+              </p>
+            </div>
+          </div>
+
+          {activeProject && (
+            <Link
+              to={`/projects/${activeProject._id}`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-300 shadow-sm transition shrink-0"
+            >
+              <span>Launch Active Scope</span>
+              <ArrowRight className="w-3.5 h-3.5 text-brand-600" />
+            </Link>
+          )}
+        </div>
+
+        {/* 6 Step Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-1 font-mono text-[11px]">
+          <div className="p-2.5 rounded-lg bg-white/90 border border-sky-100 shadow-subtle space-y-0.5">
+            <span className="text-[10px] text-brand-600 font-bold block">GATE 1</span>
+            <span className="font-semibold text-slate-800 font-sans block">Bounded Schema</span>
+            <span className="text-[10px] text-slate-500">Strict JSON Types</span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-white/90 border border-sky-100 shadow-subtle space-y-0.5">
+            <span className="text-[10px] text-brand-600 font-bold block">GATE 2</span>
+            <span className="font-semibold text-slate-800 font-sans block">AI Proposal</span>
+            <span className="text-[10px] text-slate-500">Zod Validated</span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-white/90 border border-amber-200 shadow-subtle space-y-0.5 bg-amber-50/30">
+            <span className="text-[10px] text-amber-700 font-bold block">GATE 3</span>
+            <span className="font-semibold text-slate-800 font-sans block">Human Sign-off</span>
+            <span className="text-[10px] text-slate-500">Mandatory Gate</span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-white/90 border border-sky-100 shadow-subtle space-y-0.5">
+            <span className="text-[10px] text-brand-600 font-bold block">GATE 4</span>
+            <span className="font-semibold text-slate-800 font-sans block">Dry Run Check</span>
+            <span className="text-[10px] text-slate-500">0 Writes to DB</span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-white/90 border border-emerald-200 shadow-subtle space-y-0.5 bg-emerald-50/30">
+            <span className="text-[10px] text-emerald-700 font-bold block">GATE 5</span>
+            <span className="font-semibold text-slate-800 font-sans block">Count Invariants</span>
+            <span className="text-[10px] text-slate-500">S = A + R Proof</span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-white/90 border border-purple-200 shadow-subtle space-y-0.5 bg-purple-50/30">
+            <span className="text-[10px] text-purple-700 font-bold block">GATE 6</span>
+            <span className="font-semibold text-slate-800 font-sans block">Safe Rollback</span>
+            <span className="text-[10px] text-slate-500">Run Snapshot</span>
+          </div>
+        </div>
+      </section>
+
       {/* KPI Metrics Grid (4 Cards) */}
       <section aria-label="Key Performance Indicators" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         {/* Metric Card 1: TOTAL PROJECTS */}

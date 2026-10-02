@@ -13,6 +13,7 @@ import {
   RotateCw,
   Search,
   Code2,
+  Zap,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { StatusBadge } from '../components/ui/StatusBadge';
@@ -37,6 +38,13 @@ export const ProjectDetail = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['project', id],
     queryFn: () => api.getProjectById(id),
+  });
+
+  const injectChaosMutation = useMutation({
+    mutationFn: () => api.injectChaosDataset(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['project', id]);
+    },
   });
 
   const aiAnalyzeMutation = useMutation({
@@ -109,8 +117,18 @@ export const ProjectDetail = () => {
           </p>
         </div>
 
-        {/* Primary AI Action Button */}
+        {/* Action Buttons */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => injectChaosMutation.mutate()}
+            disabled={injectChaosMutation.isPending}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold shadow-subtle transition"
+            title="Injects realistic dirty data (null IDs, malformed emails, invalid dates) to verify deterministic error isolation."
+          >
+            <Zap className="w-3.5 h-3.5 text-amber-600" />
+            <span>{injectChaosMutation.isPending ? 'Injecting...' : 'Inject Chaos Dataset'}</span>
+          </button>
+
           <button
             onClick={() => aiAnalyzeMutation.mutate()}
             disabled={aiAnalyzeMutation.isPending}
@@ -366,7 +384,7 @@ export const ProjectDetail = () => {
       {/* Tab 2: Sample Records */}
       {activeTab === 'samples' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="relative flex-1 max-w-sm">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
@@ -377,9 +395,21 @@ export const ProjectDetail = () => {
                 className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition shadow-sm"
               />
             </div>
-            <span className="text-xs text-slate-500 font-mono">
-              Showing {filteredRecords.length} of {sampleRecords.length} records
-            </span>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => injectChaosMutation.mutate()}
+                disabled={injectChaosMutation.isPending}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold shadow-subtle transition"
+              >
+                <Zap className="w-3.5 h-3.5 text-amber-600" />
+                <span>{injectChaosMutation.isPending ? 'Injecting...' : 'Inject Chaos Edge Cases'}</span>
+              </button>
+
+              <span className="text-xs text-slate-500 font-mono">
+                Showing {filteredRecords.length} of {sampleRecords.length} records
+              </span>
+            </div>
           </div>
 
           <div className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">

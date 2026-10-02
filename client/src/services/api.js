@@ -49,6 +49,7 @@ export const api = {
   getProjectById: (id) => request(`/projects/${id}`),
   createProject: (payload) => request('/projects', { method: 'POST', body: JSON.stringify(payload) }),
   getProjectHistory: (id) => request(`/projects/${id}/history`),
+  injectChaosDataset: (id) => request(`/projects/${id}/chaos-dataset`, { method: 'POST' }),
 
   // AI & Plans
   runAIAnalysis: (projectId) => request(`/projects/${projectId}/ai/analyze`, { method: 'POST' }),

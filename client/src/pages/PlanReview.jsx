@@ -16,10 +16,12 @@ import {
   ArrowRight,
   Info,
   Check,
+  Database,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { Modal } from '../components/ui/Modal';
+import { previewTransformRecord } from '../utils/transformations';
 
 const SUPPORTED_TRANSFORMATIONS = [
   'DIRECT',
@@ -54,6 +56,7 @@ export const PlanReview = () => {
   const [approverName, setApproverName] = useState('Rahul Engineer');
   const [rejectorName, setRejectorName] = useState('Operator');
   const [rejectionReason, setRejectionReason] = useState('');
+  const [selectedSampleIndex, setSelectedSampleIndex] = useState(0);
 
   // Fetch plan
   const { data: planData, isLoading: isPlanLoading, error } = useQuery({
@@ -69,6 +72,10 @@ export const PlanReview = () => {
 
   const plan = planData?.data;
   const project = projectData?.data?.project;
+
+  const sampleRecords = project?.sampleRecords || [];
+  const currentSampleRecord = sampleRecords[selectedSampleIndex] || sampleRecords[0] || {};
+  const liveTransformedRecord = previewTransformRecord(currentSampleRecord, mappings);
 
   useEffect(() => {
     if (plan) {
@@ -446,6 +453,104 @@ export const PlanReview = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Standout Feature: Live Record Transformation Sandbox */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center text-brand-600">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                Live Record Transformation Sandbox
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200 font-semibold">
+                  Zero-Latency Reactive
+                </span>
+              </h3>
+              <p className="text-xs text-slate-500">
+                Live preview of sample input records evaluated through current transformation rules before human sign-off.
+              </p>
+            </div>
+          </div>
+
+          {/* Sample Record Picker */}
+          {sampleRecords.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500 font-medium">Test Record:</span>
+              <select
+                value={selectedSampleIndex}
+                onChange={(e) => setSelectedSampleIndex(Number(e.target.value))}
+                className="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500 shadow-subtle"
+              >
+                {sampleRecords.map((rec, idx) => (
+                  <option key={idx} value={idx}>
+                    Record #{idx + 1} {rec.customer_id !== undefined ? `(ID: ${rec.customer_id})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          {/* Left: Raw Source Input */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span className="text-xs font-bold font-mono text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                <Database className="w-3.5 h-3.5 text-brand-600" />
+                Raw Source Record ({project?.sourceSchema?.name || 'legacy_customers'})
+              </span>
+              <span className="text-[11px] text-slate-400 font-mono">Input</span>
+            </div>
+
+            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs space-y-2">
+              {Object.entries(currentSampleRecord).map(([key, val]) => (
+                <div key={key} className="flex items-start justify-between gap-2 border-b border-slate-200/50 pb-1.5 last:border-0 last:pb-0">
+                  <span className="font-semibold text-slate-700">{key}:</span>
+                  <span className="text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-subtle max-w-[240px] truncate">
+                    {val !== undefined && val !== null ? String(val) : <span className="text-slate-400 italic">null</span>}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Live Computed Target Output */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span className="text-xs font-bold font-mono text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                Computed Target Record ({project?.targetSchema?.name || 'customers'})
+              </span>
+              <span className="text-[11px] text-emerald-700 font-mono font-medium">Reactive Output</span>
+            </div>
+
+            <div className="p-3.5 rounded-lg bg-emerald-50/40 border border-emerald-200 font-mono text-xs space-y-2">
+              {mappings.map((m, idx) => {
+                const computedVal = liveTransformedRecord[m.targetField];
+                return (
+                  <div key={idx} className="flex items-start justify-between gap-2 border-b border-emerald-200/40 pb-1.5 last:border-0 last:pb-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-slate-900">{m.targetField}:</span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-white text-brand-700 border border-brand-200 font-sans font-medium">
+                        {m.transformation}
+                      </span>
+                    </div>
+                    <span className="text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-subtle max-w-[240px] truncate font-semibold">
+                      {computedVal !== undefined && computedVal !== null ? (
+                        typeof computedVal === 'object' ? JSON.stringify(computedVal) : String(computedVal)
+                      ) : (
+                        <span className="text-slate-400 italic">null</span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
