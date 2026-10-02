@@ -8,6 +8,7 @@ This document records the interaction, delegation patterns, representative promp
 
 - **AI Pair Programming Assistant**: Antigravity IDE (Gemini 3.8 Flash model)
 - **Runtime LLM Integration Options**:
+  - OpenRouter API (`openrouter/free`, `liquid/lfm-2.5-2.6b:free`) for zero-cost open-source evaluation
   - Google Gemini API (`gemini-1.5-flash`) via REST API
   - OpenAI Compatible API (`gpt-4o-mini`) via REST API
   - Deterministic Offline Fallback (`MockProvider`) using semantic heuristic matching
@@ -117,6 +118,13 @@ During the course of building this application, the following real mistakes and 
 ### 4. Over-Constrained Target Model Schema
 - **Encountered**: In `approval.test.js`, the test schema tested a minimal record (`customer_id`, `full_name`). The Mongoose `TargetCustomer` model initially required `email` as a mandatory database field, causing insertion to fail in test environments where `email` wasn't part of the bounded subset.
 - **Correction**: Decoupled database-level constraints by providing flexible defaults on `TargetCustomer` and relying on the project's **target schema definition** via `validateRecordAgainstSchema` to enforce required fields deterministically.
+
+### 5. Free Open-Source LLM Variance & Queueing (OpenRouter Integration)
+- **Encountered**: When evaluating zero-cost open-source models via OpenRouter (`openrouter/free`), the free router occasionally balanced to safety classifiers returning plaintext (e.g. `User Safety: safe`), or models returned alternative key naming (`fieldMappings` instead of `mappings`) and string arrays instead of structured risk objects. Additionally, public shared pools occasionally experienced high queueing latency.
+- **Correction**:
+  1. Developed an intelligent `normalizeRawOutput` pipeline in `AIService.js` that maps key aliases, normalizes transformation names (`TRIM` $\to$ `STRING_TRIM`), and structures raw text into strict Zod-compatible objects.
+  2. Added a 25-second `AbortController` timeout on LLM HTTP requests to prevent UI freezes.
+  3. Engineered a zero-downtime fallback to `MockProvider` so that API rate-limits or timeouts fail gracefully with deterministic plan proposals.
 
 ---
 
