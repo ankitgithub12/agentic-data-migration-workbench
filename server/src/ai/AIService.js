@@ -13,6 +13,10 @@ export class AIService {
   }
 
   initPrimaryProvider() {
+    if (config.env === 'test' || process.env.NODE_ENV === 'test') {
+      return this.mockProvider;
+    }
+
     const { provider, apiKey, model, baseUrl } = config.llm;
     if (!apiKey) {
       logger.info({ event: 'AI_PROVIDER_DEFAULT' }, 'No LLM_API_KEY provided. Using high-fidelity MockProvider for deterministic AI analysis.');
@@ -88,26 +92,7 @@ export class AIService {
     const normalized = this.normalizeRawOutput(rawOutput);
 
     // Strict validation using Zod
-    let validationResult = aiAnalysisOutputSchema.safeParse(normalized);
-
-    if (!validationResult.success && providerName !== 'MockProvider') {
-      logger.warn(
-        {
-          event: 'AI_OUTPUT_VALIDATION_FALLBACK',
-          provider: providerName,
-          errors: validationResult.error.format(),
-        },
-        'Primary AI output failed strict schema validation. Falling back to deterministic MockProvider...'
-      );
-      const fallbackOutput = await this.mockProvider.generatePlan({
-        sourceSchema,
-        targetSchema,
-        sampleRecords: sampleRecords.slice(0, 5),
-        supportedTransformations,
-      });
-      providerName = 'MockProvider';
-      validationResult = aiAnalysisOutputSchema.safeParse(fallbackOutput);
-    }
+    const validationResult = aiAnalysisOutputSchema.safeParse(normalized);
 
     if (!validationResult.success) {
       const formattedErrors = validationResult.error.format();
@@ -148,33 +133,35 @@ export class AIService {
   normalizeRawOutput(raw) {
     if (!raw || typeof raw !== 'object') return raw;
 
+    // If payload does not look like a migration response at all, return raw to trigger Zod validation error
+    if (!raw.mappings && !raw.fieldMappings && !raw.fields && !raw.risks && !raw.migrationPlan) {
+      return raw;
+    }
+
     // 1. Normalize mappings key & fields
-    const rawMappings = raw.mappings || raw.fieldMappings || raw.fields || [];
-    const mappings = Array.isArray(rawMappings)
-      ? rawMappings.map((m) => {
-          let transformation = m.transformation;
-          if (!transformation && Array.isArray(m.transformations) && m.transformations.length > 0) {
-            transformation = m.transformations[0];
-          }
-          let trans = String(transformation || 'DIRECT').trim().toUpperCase();
-          if (trans === 'TRIM') trans = 'STRING_TRIM';
-          if (trans === 'DATE') trans = 'DATE_ISO';
-          if (trans === 'ISO_DATE') trans = 'DATE_ISO';
-          if (trans === 'TO_NUMBER') trans = 'STRING_TO_NUMBER';
-          if (trans === 'TO_STRING') trans = 'NUMBER_TO_STRING';
-          if (!SUPPORTED_TRANSFORMATIONS.includes(trans)) {
-            trans = 'DIRECT';
-          }
-          return {
-            sourceField: m.sourceField || m.source || '',
-            targetField: m.targetField || m.target || '',
-            transformation: trans,
-            confidence: typeof m.confidence === 'number' ? m.confidence : 0.88,
-            reason: m.reason || m.description || 'AI suggested mapping',
-            transformationConfig: m.transformationConfig || {},
-          };
-        })
-      : [];
+    const rawMappings = raw.mappings || raw.fieldMappings || raw.fields;
+    if (!Array.isArray(rawMappings)) return raw;
+
+    const mappings = rawMappings.map((m) => {
+      let transformation = m.transformation;
+      if (!transformation && Array.isArray(m.transformations) && m.transformations.length > 0) {
+        transformation = m.transformations[0];
+      }
+      let trans = String(transformation || 'DIRECT').trim().toUpperCase();
+      if (trans === 'TRIM') trans = 'STRING_TRIM';
+      if (trans === 'DATE') trans = 'DATE_ISO';
+      if (trans === 'ISO_DATE') trans = 'DATE_ISO';
+      if (trans === 'TO_NUMBER') trans = 'STRING_TO_NUMBER';
+      if (trans === 'TO_STRING') trans = 'NUMBER_TO_STRING';
+      return {
+        sourceField: m.sourceField || m.source || '',
+        targetField: m.targetField || m.target || '',
+        transformation: trans,
+        confidence: typeof m.confidence === 'number' ? m.confidence : 0.88,
+        reason: m.reason || m.description || 'AI suggested mapping',
+        transformationConfig: m.transformationConfig || {},
+      };
+    });
 
     // 2. Normalize risks
     const rawRisks = raw.risks || [];
