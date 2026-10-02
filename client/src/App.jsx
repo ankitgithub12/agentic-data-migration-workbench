@@ -25,11 +25,11 @@ export const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
+        <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#F8FAFC] text-slate-900">
           <Navbar />
           <div className="flex flex-1 overflow-hidden">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto p-8">
+            <main className="flex-1 overflow-y-auto p-8 bg-[#F8FAFC]">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/projects" element={<Dashboard />} />
