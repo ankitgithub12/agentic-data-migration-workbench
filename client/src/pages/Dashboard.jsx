@@ -320,6 +320,13 @@ export const Dashboard = () => {
             <FolderGit2 className="w-4 h-4 text-brand-600" />
             Configured Migration Projects ({projects.length})
           </h3>
+          <Link
+            to="/projects"
+            className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1 transition-colors"
+          >
+            <span>Manage All Projects</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

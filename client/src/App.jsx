@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { Dashboard } from './pages/Dashboard';
+import { ProjectsList } from './pages/ProjectsList';
 import { ProjectDetail } from './pages/ProjectDetail';
 import { PlanReview } from './pages/PlanReview';
 import { RunDetail } from './pages/RunDetail';
@@ -32,7 +33,7 @@ export const App = () => {
             <main className="flex-1 overflow-y-auto p-8 bg-[#F8FAFC]">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
-                <Route path="/projects" element={<Dashboard />} />
+                <Route path="/projects" element={<ProjectsList />} />
                 <Route path="/projects/:id" element={<ProjectDetail />} />
                 <Route path="/projects/:id/plans/:planId" element={<PlanReview />} />
                 <Route path="/runs" element={<RunsList />} />
