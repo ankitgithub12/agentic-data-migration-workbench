@@ -1,4 +1,8 @@
-const API_BASE = '/api';
+// In Vite, environment variables must be prefixed with VITE_
+const rawBase = (import.meta.env.VITE_API_URL || '').trim();
+const API_BASE = rawBase
+  ? (rawBase.endsWith('/api') ? rawBase : `${rawBase.replace(/\/+$/, '')}/api`)
+  : '/api';
 
 class ApiError extends Error {
   constructor(message, status, code, details) {
