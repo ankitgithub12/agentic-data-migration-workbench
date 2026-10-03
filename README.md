@@ -341,22 +341,54 @@ node server/src/verify_e2e.js
 
 ## Deployment Guide
 
-### Backend (Render / Railway / Heroku / AWS ECS)
-1. Point build root or workspace directory to `server`.
-2. Build command: `npm install`
-3. Start command: `node src/app.js`
-4. Set environment variables: `NODE_ENV=production`, `PORT=5000`, `MONGODB_URI`, `CORS_ORIGIN`, `LLM_API_KEY`.
+### Option 1: Docker Compose (Single Command Local or Server Run)
+Run both MongoDB and the Migration Workbench containerized with automatic health checks:
 
-### Frontend (Vercel / Netlify / Cloudflare Pages)
-1. Point build root to `client`.
-2. Build command: `npm run build`
-3. Output directory: `dist`
-4. Configure environment variable: `VITE_API_URL` pointing to your deployed backend URL.
+```bash
+# Build and start all services in the background
+docker compose -f docker/docker-compose.yml up -d --build
 
-### Database (MongoDB Atlas)
-1. Provision an M0 free tier cluster on MongoDB Atlas.
-2. Allow access from your application deployment IP / CIDR `0.0.0.0/0`.
-3. Provide the connection string via `MONGODB_URI`.
+# View container logs
+docker compose -f docker/docker-compose.yml logs -f app
+
+# Stop services
+docker compose -f docker/docker-compose.yml down
+```
+- App UI & API available at: `http://localhost:5000`
+- MongoDB listening at: `localhost:27017`
+
+### Option 2: Docker Container Build
+Build and run the production image standalone (pointing to MongoDB Atlas or existing Mongo instance):
+
+```bash
+# Build the production multi-stage image using the docker folder Dockerfile
+docker build -f docker/Dockerfile -t migration-workbench:latest .
+
+# Run the container
+docker run -p 5000:5000 \
+  -e NODE_ENV=production \
+  -e MONGODB_URI="mongodb+srv://<user>:<password>@cluster0.wje2jpa.mongodb.net" \
+  -e LLM_PROVIDER="openrouter" \
+  -e LLM_API_KEY="sk-or-v1-..." \
+  -e LLM_MODEL="openrouter/free" \
+  migration-workbench:latest
+```
+
+### Option 3: Cloud Platforms (Render / Railway / Fly.io / AWS ECS)
+1. Point your service build settings to Dockerfile path: `docker/Dockerfile`.
+2. Set environment variables:
+   - `NODE_ENV=production`
+   - `PORT=5000` (or platform default)
+   - `MONGODB_URI` (MongoDB Atlas URI)
+   - `LLM_PROVIDER=openrouter`
+   - `LLM_API_KEY`
+   - `LLM_MODEL=openrouter/free`
+3. Deploy! The unified container automatically builds the Vite frontend and serves both the client SPA and REST API from a single instance.
+
+### Option 4: Split Deployment (Backend on Render/Railway + Frontend on Vercel)
+- **Backend (Render / Railway)**: Build directory `server`, build command `npm install`, start `node src/app.js`.
+- **Frontend (Vercel / Netlify)**: Build directory `client`, build command `npm run build`, output `dist`. Set `VITE_API_URL` to your backend URL.
+- **Database (MongoDB Atlas)**: Provision M0 free cluster and provide connection string via `MONGODB_URI`.
 
 ---
 

@@ -154,6 +154,7 @@ async function runVerification() {
   }
 
   console.log('\n=== ALL E2E VERIFICATIONS PASSED WITH 100% SUCCESS ===\n');
+  process.exit(0);
 }
 
 runVerification().catch(err => {

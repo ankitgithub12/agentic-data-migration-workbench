@@ -9,10 +9,17 @@ import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import apiRoutes from './routes/index.js';
 
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
-// Security headers
-app.use(helmet());
+// Security headers (permissive CSP for bundled React assets)
+app.use(helmet({ contentSecurityPolicy: false }));
 
 // CORS configuration
 app.use(
@@ -55,13 +62,39 @@ app.use('/api/projects/:id/ai', aiRateLimiter);
 // Mount main API router
 app.use('/api', apiRoutes);
 
+// Serve static client assets in production if available
+const clientDistPath = path.resolve(__dirname, '../../../client/dist');
+const serverPublicPath = path.resolve(__dirname, '../public');
+const staticPath = fs.existsSync(clientDistPath) ? clientDistPath : (fs.existsSync(serverPublicPath) ? serverPublicPath : null);
+
+if (staticPath) {
+  app.use(express.static(staticPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(staticPath, 'index.html'));
+  });
+}
+
 // 404 handler for undefined API routes
-app.use((req, res) => {
+app.use('/api', (req, res) => {
   res.status(404).json({
     success: false,
     error: {
       code: 'ROUTE_NOT_FOUND',
       message: `The requested endpoint ${req.method} ${req.originalUrl} does not exist.`,
+    },
+  });
+});
+
+// Fallback 404 handler if static SPA not loaded
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: {
+      code: 'NOT_FOUND',
+      message: `The requested path ${req.path} was not found.`,
     },
   });
 });
