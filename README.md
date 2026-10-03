@@ -1,10 +1,16 @@
 # Agentic Data Migration Planner and Reconciliation Workbench
 
+[![Live Demo (Vercel)](https://img.shields.io/badge/Live%20Demo-Vercel%20Frontend-black?logo=vercel)](https://agentic-data-migration-workbench-two.vercel.app)
+[![API & Backend (Render)](https://img.shields.io/badge/Production%20API-Render%20Unified-46e3b7?logo=render)](https://agentic-data-migration-workbench-44s1.onrender.com)
 [![Test Suite](https://img.shields.io/badge/tests-39%20passed%20%7C%20100%25-brightgreen.svg)](#testing--quality-assurance)
 [![AI Architecture](https://img.shields.io/badge/AI%20Governance-Bounded%20Agentic-blue.svg)](#architecture--principles)
 [![LLM Support](https://img.shields.io/badge/LLM-OpenRouter%20(Free)%20%7C%20Gemini%20%7C%20OpenAI%20%7C%20Offline-orange.svg)](#ai-provider-matrix)
 [![Security](https://img.shields.io/badge/Security-Zero%20Arbitrary%20Code%20Execution-red.svg)](#supported-transformations)
-[![Compliance](https://img.shields.io/badge/Compliance-SOC%202%20%2F%20ISO%2027001%20Audit%20Pack-purple.svg)](#the-4-standout-enterprise-features)
+
+> 🚀 **Live Production Deployments**:
+> - **Frontend (Vercel)**: [https://agentic-data-migration-workbench-two.vercel.app](https://agentic-data-migration-workbench-two.vercel.app)
+> - **Unified Backend & Container (Render)**: [https://agentic-data-migration-workbench-44s1.onrender.com](https://agentic-data-migration-workbench-44s1.onrender.com)
+> - **Live Health Check**: [https://agentic-data-migration-workbench-44s1.onrender.com/api/health](https://agentic-data-migration-workbench-44s1.onrender.com/api/health)
 
 A full-stack, enterprise-grade workbench designed to plan, validate, review, approve, execute, reconcile, and safely rollback the migration of bounded datasets from a legacy source schema to a modernized target schema.
 
